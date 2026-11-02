@@ -18,9 +18,6 @@
       "database_id": "b30d9424-f0e2-4abd-855d-66c55c4e874b"
     }
   ],
-  "routes": [
-    { "pattern": "haloalumni.my.id", "custom_domain": true }
-  ],
   "r2_buckets": [
     {
       "binding": "MEDIA",
