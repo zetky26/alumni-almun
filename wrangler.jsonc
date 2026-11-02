@@ -7,7 +7,8 @@
     "enabled": true
   },
   "vars": {
-    "PUBLIC_SITE_URL": "https://haloalumni.my.id",
+    "PUBLIC_SITE_URL": "https://alumni-almun.mohamadnabilmuzakki26.workers.dev",
+```[cite: 23]
     "EMAIL_FROM": "Alumni <no-reply@haloalumni.my.id>"
   },
   "d1_databases": [
