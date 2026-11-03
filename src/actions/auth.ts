@@ -1,5 +1,4 @@
 import { defineAction } from 'astro:actions';
-import { env } from 'cloudflare:workers';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb, alumniProfiles, users } from '../server/db';
@@ -36,11 +35,11 @@ export const auth = {
     input: z.object({
       email: emailField,
       next: optionalText(300),
-      'cf-turnstile-response': optionalCheckbox,
+      'cf-turnstile-response': z.string().optional(),
     }),
     handler: async (input, context) => {
       const email = input.email.toLowerCase();
-      const valid = z.email().safeParse(email);
+      const valid = z.string().email().safeParse(email);
       if (!valid.success) return fail(context, '/masuk', 'Masukkan alamat email yang valid.');
 
       const ip = context.clientAddress ?? 'unknown';
@@ -50,7 +49,11 @@ export const auth = {
       if (!(await rateLimit('login', `${ip}:${email}`, 5, 15 * 60 * 1000))) {
         return fail(context, '/masuk', 'Terlalu banyak percobaan. Coba lagi dalam 15 menit.');
       }
-      if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress))) {
+
+      // Ambil env runtime Cloudflare dengan aman
+      const runtimeEnv = (context.locals as any).runtime?.env || import.meta.env;
+      
+      if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress, runtimeEnv))) {
         return fail(context, '/masuk', 'Verifikasi keamanan gagal. Muat ulang halaman dan coba lagi.');
       }
 
@@ -75,7 +78,7 @@ export const auth = {
           context.url.hostname === 'localhost' ||
           context.url.hostname === '127.0.0.1' ||
           context.url.hostname.endsWith('.local');
-        if (!env.RESEND_API_KEY && isLocal) console.info('[magic-link:dev]', link);
+        if (!runtimeEnv.RESEND_API_KEY && isLocal) console.info('[magic-link:dev]', link);
       }
 
       return ok(
@@ -96,11 +99,11 @@ export const auth = {
       nim: optionalText(40),
       phone: optionalText(30),
       consent: optionalCheckbox,
-      'cf-turnstile-response': optionalCheckbox,
+      'cf-turnstile-response': z.string().optional(),
     }),
     handler: async (input, context) => {
       const email = input.email.toLowerCase();
-      const emailValid = z.email().safeParse(email);
+      const emailValid = z.string().email().safeParse(email);
       if (!emailValid.success) return fail(context, '/daftar', 'Alamat email tidak valid.');
       if (input.fullName.length < 2) return fail(context, '/daftar', 'Nama lengkap wajib diisi.');
       if (!input.consent) return fail(context, '/daftar', 'Anda harus menyetujui kebijakan privasi.');
@@ -110,7 +113,10 @@ export const auth = {
       if (!(await rateLimit('register', ip, 3, 60 * 60 * 1000))) {
         return fail(context, '/daftar', 'Terlalu banyak pendaftaran dari jaringan ini. Coba lagi nanti.');
       }
-      if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress))) {
+
+      const runtimeEnv = (context.locals as any).runtime?.env || import.meta.env;
+
+      if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress, runtimeEnv))) {
         return fail(context, '/daftar', 'Verifikasi keamanan gagal. Muat ulang halaman dan coba lagi.');
       }
 
@@ -185,10 +191,10 @@ export const auth = {
         (promise) => context.locals.cfContext?.waitUntil(promise),
       );
 
-      if (env.ADMIN_EMAIL) {
+      if (runtimeEnv.ADMIN_EMAIL) {
         sendEmailSafe(
           {
-            to: env.ADMIN_EMAIL,
+            to: runtimeEnv.ADMIN_EMAIL,
             subject: `Pendaftar alumni baru: ${input.fullName}`,
             html: adminNotificationEmail({
               siteName: settings['site.name'],
