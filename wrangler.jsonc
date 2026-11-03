@@ -7,7 +7,7 @@
     "enabled": true
   },
   "vars": {
-    "PUBLIC_SITE_URL": "https://alumni-almun.mohamadnabilmuzakki26.workers.dev",
+    "PUBLIC_SITE_URL": "https://alumni.ponpesalmunawaroh.sch.id",
     "EMAIL_FROM": "Alumni <no-reply@haloalumni.my.id>"
   },
   "d1_databases": [
@@ -15,7 +15,7 @@
       "binding": "DB",
       "database_name": "alumni-db",
       // Ganti dengan ID dari `wrangler d1 create alumni-db`
-      "database_id": "b30d9424-f0e2-4abd-855d-66c55c4e874b"
+      "database_id": "d1ba1932-69e3-45c1-8c8f-4be76310b6eb"
     }
   ],
   "r2_buckets": [
