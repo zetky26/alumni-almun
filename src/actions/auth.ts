@@ -1,4 +1,5 @@
 import { defineAction } from 'astro:actions';
+import { env } from 'cloudflare:workers';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb, alumniProfiles, users } from '../server/db';
@@ -50,11 +51,8 @@ export const auth = {
         return fail(context, '/masuk', 'Terlalu banyak percobaan. Coba lagi dalam 15 menit.');
       }
 
-      // Ambil env runtime Cloudflare dengan aman
-      const runtimeEnv = (context.locals as any).runtime?.env || import.meta.env;
-      
       // Verifikasi Turnstile dinonaktifkan sementara
-      // if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress, runtimeEnv))) {
+      // if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress, env))) {
       //   return fail(context, '/masuk', 'Verifikasi keamanan gagal. Muat ulang halaman dan coba lagi.');
       // }
 
@@ -79,7 +77,7 @@ export const auth = {
           context.url.hostname === 'localhost' ||
           context.url.hostname === '127.0.0.1' ||
           context.url.hostname.endsWith('.local');
-        if (!runtimeEnv.RESEND_API_KEY && isLocal) console.info('[magic-link:dev]', link);
+        if (!env.RESEND_API_KEY && isLocal) console.info('[magic-link:dev]', link);
       }
 
       return ok(
@@ -115,10 +113,8 @@ export const auth = {
         return fail(context, '/daftar', 'Terlalu banyak pendaftaran dari jaringan ini. Coba lagi nanti.');
       }
 
-      const runtimeEnv = (context.locals as any).runtime?.env || import.meta.env;
-
       // Verifikasi Turnstile dinonaktifkan sementara
-      // if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress, runtimeEnv))) {
+      // if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress, env))) {
       //   return fail(context, '/daftar', 'Verifikasi keamanan gagal. Muat ulang halaman dan coba lagi.');
       // }
 
@@ -158,7 +154,7 @@ export const auth = {
       await db.batch([
         db.insert(users).values({
           id: userId,
-          email,
+      email,
           role: 'alumni',
           status: 'pending',
           createdAt: timestamp,
@@ -193,10 +189,10 @@ export const auth = {
         (promise) => context.locals.cfContext?.waitUntil(promise),
       );
 
-      if (runtimeEnv.ADMIN_EMAIL) {
+      if (env.ADMIN_EMAIL) {
         sendEmailSafe(
           {
-            to: runtimeEnv.ADMIN_EMAIL,
+            to: env.ADMIN_EMAIL,
             subject: `Pendaftar alumni baru: ${input.fullName}`,
             html: adminNotificationEmail({
               siteName: settings['site.name'],
