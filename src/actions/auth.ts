@@ -11,7 +11,7 @@ import {
   registrationReceivedEmail,
 } from '../server/email/templates';
 import { rateLimit } from '../server/security/rate-limit';
-import { verifyTurnstile } from '../server/security/turnstile';
+// import { verifyTurnstile } from '../server/security/turnstile';
 import { getSettings } from '../server/settings';
 import { withParams } from '../server/http';
 import { safeRedirectPath } from '../server/url';
@@ -53,9 +53,10 @@ export const auth = {
       // Ambil env runtime Cloudflare dengan aman
       const runtimeEnv = (context.locals as any).runtime?.env || import.meta.env;
       
-      if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress, runtimeEnv))) {
-        return fail(context, '/masuk', 'Verifikasi keamanan gagal. Muat ulang halaman dan coba lagi.');
-      }
+      // Verifikasi Turnstile dinonaktifkan sementara
+      // if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress, runtimeEnv))) {
+      //   return fail(context, '/masuk', 'Verifikasi keamanan gagal. Muat ulang halaman dan coba lagi.');
+      // }
 
       const db = getDb();
       const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
@@ -116,9 +117,10 @@ export const auth = {
 
       const runtimeEnv = (context.locals as any).runtime?.env || import.meta.env;
 
-      if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress, runtimeEnv))) {
-        return fail(context, '/daftar', 'Verifikasi keamanan gagal. Muat ulang halaman dan coba lagi.');
-      }
+      // Verifikasi Turnstile dinonaktifkan sementara
+      // if (!(await verifyTurnstile(input['cf-turnstile-response'], context.clientAddress, runtimeEnv))) {
+      //   return fail(context, '/daftar', 'Verifikasi keamanan gagal. Muat ulang halaman dan coba lagi.');
+      // }
 
       const db = getDb();
       const [existing] = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
