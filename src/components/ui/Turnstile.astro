@@ -1,7 +1,5 @@
 ---
-import { env } from 'cloudflare:workers';
-
-const siteKey = env.TURNSTILE_SITE_KEY;
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 ---
 
 {
