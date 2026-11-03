@@ -1,4 +1,4 @@
-# Halo Almunia
+# Halo Almun
 
 Direktori alumni + CMS untuk sekolah, kampus, atau pesantren: profil alumni, loker, berita, agenda, donasi, dan kartu anggota digital dengan verifikasi QR. Dibangun dengan Astro 7 di Cloudflare Workers, D1, dan R2.
 
