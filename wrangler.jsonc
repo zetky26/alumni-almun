@@ -7,8 +7,8 @@
     "enabled": true
   },
   "vars": {
-    "PUBLIC_SITE_URL": "https://alumni.ponpesalmunawaroh.sch.id",
-    "EMAIL_FROM": "Alumni <no-reply@haloalumni.my.id>"
+    "PUBLIC_SITE_URL": "alumni-almun.project-bb5.workers.dev",
+    "EMAIL_FROM": "Alumni <alumni@almunawaroh.sch.id>"
   },
   "d1_databases": [
     {
